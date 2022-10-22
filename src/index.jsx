@@ -3,48 +3,6 @@ import api, { route } from "@forge/api";
 import { addSyncupComment } from './api';
 
 
-// async function addSyncupComment(action, apiName, issueId) {
- 
-//     var commentText = `"SYNCUP: ${action} : ${apiName}"`;
-
-//     var body = `{
-//         "body": {
-//           "type": "doc",
-//           "version": 1,
-//           "content": [
-//             {
-//               "type": "paragraph",
-//               "content": [
-//                 {
-//                   "text": ${commentText},
-//                   "type": "text"
-//                 }
-//               ]
-//             }
-//           ]
-//         }
-//       }`;
-
-//     console.log('Sending API request with body');
-//       console.log(body);
-//       console.log('Issue key', issueId);
-
-//     const response = await api
-//       .asApp()
-//       .requestJira(route`/rest/api/3/issue/${issueId}/comment`, {
-//         method: 'POST',
-//         headers: {
-//           Accept: 'application/json',
-//           'Content-Type': 'application/json',
-//         },
-//         body: body,
-//       });
-
-//     console.log(`Response: ${response.status} ${response.statusText}`);
-//     console.log(await response.json());
-  
-// }
-
 
 const App = () => {
   const [formState, setFormState] = useState(undefined);
@@ -52,45 +10,6 @@ const App = () => {
 
   const onAddApi = async (formData) => {
     addSyncupComment("add", formData.apiname, context.platformContext.issueKey);
-  //   var commentText = `"SYNCUP: ADD : ${formData.apiname}"`;
-  //   var body = `{
-  //     "body": {
-  //       "type": "doc",
-  //       "version": 1,
-  //       "content": [
-  //         {
-  //           "type": "paragraph",
-  //           "content": [
-  //             {
-  //               "text": ${commentText},
-  //               "type": "text"
-  //             }
-  //           ]
-  //         }
-  //       ]
-  //     }
-  //   }`;
-  
-  // console.log('Sending API request with body');
-  //   console.log(body);
-  //   console.log('Issue key', context.platformContext.issueKey);
-
-  // const response = await api
-  //   .asApp()
-  //   .requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/comment`, {
-  //     method: 'POST',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: body,
-  //   });
-
-  // console.log(`Response: ${response.status} ${response.statusText}`);
-  // console.log(await response.json());
-
-
-
 
     // const response = await api
     // .asApp()
