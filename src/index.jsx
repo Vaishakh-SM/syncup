@@ -1,5 +1,49 @@
-import ForgeUI, { render, Fragment, Text, IssuePanel,IssueAction, ModalDialog, Form, Button, useState, TextField, useProductContext, useEffect } from '@forge/ui';
+import ForgeUI, { render, Fragment, Text, Tabs, Tab, IssuePanel,IssueAction, ModalDialog, Form, Button, useState, TextField, useProductContext, useEffect, Select, Option } from '@forge/ui';
 import api, { route } from "@forge/api";
+import { addSyncupComment } from './api';
+
+
+// async function addSyncupComment(action, apiName, issueId) {
+ 
+//     var commentText = `"SYNCUP: ${action} : ${apiName}"`;
+
+//     var body = `{
+//         "body": {
+//           "type": "doc",
+//           "version": 1,
+//           "content": [
+//             {
+//               "type": "paragraph",
+//               "content": [
+//                 {
+//                   "text": ${commentText},
+//                   "type": "text"
+//                 }
+//               ]
+//             }
+//           ]
+//         }
+//       }`;
+
+//     console.log('Sending API request with body');
+//       console.log(body);
+//       console.log('Issue key', issueId);
+
+//     const response = await api
+//       .asApp()
+//       .requestJira(route`/rest/api/3/issue/${issueId}/comment`, {
+//         method: 'POST',
+//         headers: {
+//           Accept: 'application/json',
+//           'Content-Type': 'application/json',
+//         },
+//         body: body,
+//       });
+
+//     console.log(`Response: ${response.status} ${response.statusText}`);
+//     console.log(await response.json());
+  
+// }
 
 
 const App = () => {
@@ -7,82 +51,122 @@ const App = () => {
   const context = useProductContext();
 
   const onAddApi = async (formData) => {
-    console.log("Formdata: ",formData)
-    const PROPKEY = "StoredAPIs"
-    const getresponse = await api.asApp().requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/properties/${PROPKEY}`, {
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
-    const currentData = await getresponse.json();
-    // console.log("CURRL: ", currentData);
-    console.log("type CURRL: ", typeof(currentData['value']));
-    let storedAPIs;
-    if (typeof(currentData['value']) !== 'undefined'){
-      console.log("Executing first IF")
-      storedAPIs = currentData['value']['APIs'];
-    }else{
-      storedAPIs = [];
-    }
-    
+    addSyncupComment("add", formData.apiname, context.platformContext.issueKey);
+  //   var commentText = `"SYNCUP: ADD : ${formData.apiname}"`;
+  //   var body = `{
+  //     "body": {
+  //       "type": "doc",
+  //       "version": 1,
+  //       "content": [
+  //         {
+  //           "type": "paragraph",
+  //           "content": [
+  //             {
+  //               "text": ${commentText},
+  //               "type": "text"
+  //             }
+  //           ]
+  //         }
+  //       ]
+  //     }
+  //   }`;
+  
+  // console.log('Sending API request with body');
+  //   console.log(body);
+  //   console.log('Issue key', context.platformContext.issueKey);
 
-    storedAPIs.push(formData['apiname'])
+  // const response = await api
+  //   .asApp()
+  //   .requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/comment`, {
+  //     method: 'POST',
+  //     headers: {
+  //       Accept: 'application/json',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: body,
+  //   });
 
-    console.log(`GET Response: ${getresponse.status} ${getresponse.statusText}`);
-    // console.log("Current data is ",currentData['value']['APIs']);
+  // console.log(`Response: ${response.status} ${response.statusText}`);
+  // console.log(await response.json());
 
-    var bodyData = {
-      APIs: storedAPIs
-    };
 
-    const jsonData = JSON.stringify(bodyData);
 
-    console.log("Json data is ", jsonData);
 
-    const response = await api.asApp().requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/properties/${PROPKEY}`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: jsonData
-    });
+    // const response = await api
+    // .asApp()
+    // .requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/comment`, {
+    //   headers: {
+    //     Accept: 'application/json',
+    //   },
+    // });
 
     // console.log(`Response: ${response.status} ${response.statusText}`);
-    // console.log(response);
+    // console.log(await response.json());
+    // const PROPKEY = "StoredAPIs"
+
+    // const getresponse = await api.asApp().requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/properties/${PROPKEY}`, {
+    //   headers: {
+    //     'Accept': 'application/json'
+    //   }
+    // });
+
+    // const currentData = await getresponse.json();
+
+
+    // let storedAPIs;
+    // if (typeof(currentData['value']) !== 'undefined'){
+    //   storedAPIs = currentData['value']['APIs'];
+    // }else{
+    //   storedAPIs = [];
+    // }
+    
+
+    // storedAPIs.push(formData['apiname'])
+
+    // var bodyData = {
+    //   APIs: storedAPIs
+    // };
+
+    // const jsonData = JSON.stringify(bodyData);
+
+    // const response = await api.asApp().requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/properties/${PROPKEY}`, {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: jsonData
+    // });
 
     setFormState(formData);
   };
 
-  const goBack = () => {};
-  const cancel = () => {};
-
-  // The array of additional buttons.
-  // These buttons align to the right of the submit button.
-  const actionButtons = [
-    <Button text="Go back" onClick={goBack} />,
-    <Button text="Cancel" onClick={cancel} />,
-  ];
-
-  // useEffect(async ()=>{
-  //   const response = await api.asApp().requestJira(route`/rest/api/3/issue/${context.platformContext.issueKey}/properties/textrand`, {
-  //     headers: {
-  //       'Accept': 'application/json'
-  //     }
-  //   });
-    
-  //   console.log(`Response: ${response.status} ${response.statusText}`);
-  //   console.log(await response.json());
-  // },[])
-
 
   return (
     <Fragment>
-      <Form onSubmit={onAddApi}>
-        <TextField name="apiname" label="Add API" />
+      <Tabs>
 
-      </Form>
+        <Tab label="Add">
+        <Form onSubmit={onAddApi}>
+          <TextField name="apiname" label="API Name" />
+        </Form>
+        </Tab>
+      
+        <Tab label="Deprecate">
+
+        </Tab>
+
+        <Tab label="Subscription">
+
+        </Tab>
+      </Tabs>
       {formState && <Text>{JSON.stringify(formState)}</Text>}
     </Fragment>
   );
 };
+
+export const run = render(
+  <IssuePanel>
+    <App />
+  </IssuePanel>
+);
