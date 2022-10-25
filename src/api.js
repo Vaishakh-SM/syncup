@@ -1,4 +1,5 @@
 import api, { route } from '@forge/api';
+import { storage } from '@forge/api';
 
 export async function addSyncupComment(action, apiName, issueId) {
   if (
@@ -28,19 +29,133 @@ export async function addSyncupComment(action, apiName, issueId) {
         }
       }`;
 
-    const response = await api
-      .asApp()
-      .requestJira(route`/rest/api/3/issue/${issueId}/comment`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      });
+    console.log('Before await');
+    try {
+      let response = await api
+        .asApp()
+        .requestJira(route`/rest/api/3/issue/${issueId}/comment`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: body,
+        });
 
-    // THIS LOG NOT WORKING
-    console.log(`Response: ${response.status} ${response.statusText}`);
-    console.log(await response.json());
+      //   console.log(`Response: ${response.status} ${response.statusText}`);
+      //   console.log(await response.json());
+    } catch (e) {
+      console.log('ERRORED', e);
+    }
   }
+}
+
+// export async function propertyGetApi(issueKey) {
+//   const PROPKEY = 'AddAPI';
+
+//   let getresponse = await api
+//     .asApp()
+//     .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${PROPKEY}`, {
+//       headers: {
+//         Accept: 'application/json',
+//       },
+//     });
+
+//   let currentData = await getresponse.json();
+
+//   let storedAPIs;
+//   if (typeof currentData['value'] !== 'undefined') {
+//     storedAPIs = currentData['value']['APIs'];
+//   } else {
+//     storedAPIs = [];
+//   }
+
+//   return storedAPIs;
+// }
+
+// export async function propertyAddApi(apiname, issueKey) {
+//   const PROPKEY = 'AddAPI';
+
+//   let storedAPIs = await propertyGetApi(issueKey);
+
+//   console.log('STORED APIS WHILE ADDING: ', storedAPIs);
+//   storedAPIs.push(apiname);
+//   console.log('STORED APIS AFTER ADDING: ', storedAPIs);
+//   var bodyData = {
+//     APIs: storedAPIs,
+//   };
+
+//   const jsonData = JSON.stringify(bodyData);
+
+//   const response = await api
+//     .asApp()
+//     .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${PROPKEY}`, {
+//       method: 'PUT',
+//       headers: {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json',
+//       },
+//       body: jsonData,
+//     });
+
+//   return response;
+// }
+
+export async function propertyAddApi(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'AddApi');
+}
+export async function propertyGetAddApi(issueKey) {
+  return await propertyGet(issueKey, 'AddApi');
+}
+
+export async function propertyAdd(element, issueKey, propKey) {
+  let propData = await propertyGet(issueKey, propKey);
+
+  propData.push(element);
+
+  var bodyData = {};
+
+  bodyData[propKey] = propData;
+
+  const jsonData = JSON.stringify(bodyData);
+
+  const response = await api
+    .asApp()
+    .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${propKey}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonData,
+    });
+
+  return response;
+}
+
+export async function propertyGet(issueKey, propKey) {
+  let getresponse = await api
+    .asApp()
+    .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${propKey}`, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+  let currentData = await getresponse.json();
+
+  let fieldData;
+  if (typeof currentData['value'] !== 'undefined') {
+    fieldData = currentData['value'][propKey];
+  } else {
+    fieldData = [];
+  }
+
+  return fieldData;
+}
+
+export async function getProjectStorage(projectKey) {
+  let currentStorage = await storage.get(projectKey);
+  console.log('CURR project storage: ', currentStorage);
+  return currentStorage;
 }
