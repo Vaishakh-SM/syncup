@@ -50,87 +50,54 @@ export async function addSyncupComment(action, apiName, issueId) {
   }
 }
 
-// export async function propertyGetApi(issueKey) {
-//   const PROPKEY = 'AddAPI';
-
-//   let getresponse = await api
-//     .asApp()
-//     .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${PROPKEY}`, {
-//       headers: {
-//         Accept: 'application/json',
-//       },
-//     });
-
-//   let currentData = await getresponse.json();
-
-//   let storedAPIs;
-//   if (typeof currentData['value'] !== 'undefined') {
-//     storedAPIs = currentData['value']['APIs'];
-//   } else {
-//     storedAPIs = [];
-//   }
-
-//   return storedAPIs;
-// }
-
-// export async function propertyAddApi(apiname, issueKey) {
-//   const PROPKEY = 'AddAPI';
-
-//   let storedAPIs = await propertyGetApi(issueKey);
-
-//   console.log('STORED APIS WHILE ADDING: ', storedAPIs);
-//   storedAPIs.push(apiname);
-//   console.log('STORED APIS AFTER ADDING: ', storedAPIs);
-//   var bodyData = {
-//     APIs: storedAPIs,
-//   };
-
-//   const jsonData = JSON.stringify(bodyData);
-
-//   const response = await api
-//     .asApp()
-//     .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${PROPKEY}`, {
-//       method: 'PUT',
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//       body: jsonData,
-//     });
-
-//   return response;
-// }
-
 export async function propertyAddApi(apiname, issueKey) {
   await propertyAdd(apiname, issueKey, 'AddApi');
 }
+
+export async function propertyDeleteApi(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'DeleteApi');
+}
+
 export async function propertyGetAddApi(issueKey) {
   return await propertyGet(issueKey, 'AddApi');
 }
 
+export async function propertyGetDeleteApi(issueKey) {
+  return await propertyGet(issueKey, 'DeleteApi');
+}
+
 export async function propertyAdd(element, issueKey, propKey) {
-  let propData = await propertyGet(issueKey, propKey);
+  try {
+    let propData = await propertyGet(issueKey, propKey);
+    console.log('Prop data is: ', propData);
 
-  propData.push(element);
+    if (typeof propData === 'undefined') {
+      propData = [];
+    }
 
-  var bodyData = {};
+    propData.push(element);
 
-  bodyData[propKey] = propData;
+    var bodyData = {};
 
-  const jsonData = JSON.stringify(bodyData);
+    bodyData[propKey] = propData;
 
-  const response = await api
-    .asApp()
-    .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${propKey}`, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: jsonData,
-    });
+    const jsonData = JSON.stringify(bodyData);
 
-  return response;
+    const response = await api
+      .asApp()
+      .requestJira(route`/rest/api/3/issue/${issueKey}/properties/${propKey}`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonData,
+      });
+
+    return response;
+  } catch (e) {
+    console.log('PROPEPRTY ADD ERROR: ', e);
+  }
 }
 
 export async function propertyGet(issueKey, propKey) {

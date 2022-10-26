@@ -1,23 +1,29 @@
 import ForgeUI, { render, Fragment, Text, Tabs, Tab, IssuePanel,IssueAction, ModalDialog, Form, Button, useState, TextField, useProductContext, useEffect, Select, Option } from '@forge/ui';
 import { storage } from '@forge/api';
-import { addSyncupComment, propertyAddApi } from './api';
+import { addSyncupComment, propertyAddApi, propertyDeleteApi } from './api';
 
 const ProjectAPISelect = (props) => {
 
   const rows = [];
+  const context = useProductContext();
 
-    for( let api of props.rows){
-      rows.push(<Option label={api} value={api} />);
-    }
+  const onDeleteApi = async (formData) => {
+    await addSyncupComment("Delete", formData.deleteApi, context.platformContext.issueKey);
+    let resp =  await propertyDeleteApi(formData.deleteApi, context.platformContext.issueKey)
+    console.log("Resp: ",resp);
+  }
 
-  console.log("PROPS: ",props);
-
+  for( let api of props.rows){
+    rows.push(<Option label={api} value={api} />);
+  }
 
 
   return(
-  <Select label="Choose API" name="projectapiselect">
-    {rows}
-  </Select>
+  <Form onSubmit={onDeleteApi}>
+    <Select label="Choose API" name="deleteApi">
+      {rows}
+    </Select>
+  </Form>
   );
 
 };
@@ -47,6 +53,7 @@ const App = () => {
   };
 
 
+
   return (
     <Fragment>
       {apiExistsModal && (
@@ -64,12 +71,16 @@ const App = () => {
         </Tab>
       
         <Tab label="Deprecate">
-            <Form>
-              <ProjectAPISelect rows = {rows}/>
-            </Form>
+
+            <ProjectAPISelect rows = {rows}/>
+
         </Tab>
 
-        <Tab label="Subscription">
+        <Tab label="Subscribe">
+
+        </Tab>
+
+        <Tab label="Unsubscribe">
 
         </Tab>
       </Tabs>

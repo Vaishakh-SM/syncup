@@ -1,21 +1,19 @@
 import { storage } from '@forge/api';
-import { propertyGetAddApi } from './api';
+import { propertyGetAddApi, propertyGetDeleteApi } from './api';
 
 export async function addApi(payload, context) {
-  //   console.log(JSON.stringify(payload, null, 2));
-
   const issueKey = payload['issue']['key'];
   const status = payload['issue']['fields']['status']['statusCategory']['key'];
   const project = payload['issue']['fields']['project']['key'];
-
-  console.log('Status: ', status);
-  console.log('Issue key: ', issueKey);
-  console.log('Project: ', project);
+  console.log('ADD handler');
+  //   console.log('Status: ', status);
+  //   console.log('Issue key: ', issueKey);
+  //   console.log('Project: ', project);
   let propertyAPIs = await propertyGetAddApi(issueKey);
 
   if (status === 'done') {
     let projectStorage = await storage.get(project);
-    console.log('Current project storage: ', projectStorage);
+    // console.log('Current project storage: ', projectStorage);
 
     if (typeof projectStorage === 'undefined') {
       projectStorage = {
@@ -25,8 +23,8 @@ export async function addApi(payload, context) {
 
     let currentAPIs = projectStorage['storedAPIs'];
 
-    console.log('Current apis in the project: ', currentAPIs);
-    console.log('PropertyAPis', propertyAPIs);
+    // console.log('Current apis in the project: ', currentAPIs);
+    // console.log('PropertyAPis', propertyAPIs);
 
     if (
       typeof currentAPIs === 'undefined' ||
@@ -46,20 +44,20 @@ export async function addApi(payload, context) {
 }
 
 export async function deleteApi(payload, context) {
-  //   console.log(JSON.stringify(payload, null, 2));
-
   const issueKey = payload['issue']['key'];
   const status = payload['issue']['fields']['status']['statusCategory']['key'];
   const project = payload['issue']['fields']['project']['key'];
 
-  console.log('Status: ', status);
-  console.log('Issue key: ', issueKey);
-  console.log('Project: ', project);
-  let propertyAPIs = await propertyGetAddApi(issueKey);
+  console.log('DELETE');
+  //   console.log('Status: ', status);
+  //   console.log('Issue key: ', issueKey);
+  //   console.log('Project: ', project);
+
+  let propertyAPIs = await propertyGetDeleteApi(issueKey);
 
   if (status === 'done') {
     let projectStorage = await storage.get(project);
-    console.log('Current project storage: ', projectStorage);
+    // console.log('Current project storage: ', projectStorage);
 
     if (typeof projectStorage === 'undefined') {
       projectStorage = {
@@ -69,8 +67,8 @@ export async function deleteApi(payload, context) {
 
     let currentAPIs = projectStorage['storedAPIs'];
 
-    console.log('Current apis in the project: ', currentAPIs);
-    console.log('PropertyAPis', propertyAPIs);
+    // console.log('Current apis in the project: ', currentAPIs);
+    // console.log('PropertyAPis', propertyAPIs);
 
     if (
       typeof currentAPIs === 'undefined' ||
@@ -80,7 +78,7 @@ export async function deleteApi(payload, context) {
     } else {
       currentAPIs = currentAPIs.filter((el) => !propertyAPIs.includes(el));
     }
-
+    // console.log('Filetered current apis ', currentAPIs);
     currentAPIs = [...new Set(currentAPIs)];
     projectStorage['storedAPIs'] = currentAPIs;
     storage.set(project, projectStorage);
