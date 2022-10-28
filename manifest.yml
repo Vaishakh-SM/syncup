@@ -5,19 +5,14 @@ modules:
       title: Syncup
       icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
   trigger:
-    - key: jira-add-api
-      function: add-api-handler
-      events: ['avi:jira:updated:issue']
-    - key: jira-delete-api
-      function: delete-api-handler
+    - key: jira-update-handler
+      function: update-handler
       events: ['avi:jira:updated:issue']
   function:
     - key: main
       handler: index.run
-    - key: add-api-handler
-      handler: handler.addApi
-    - key: delete-api-handler
-      handler: handler.deleteApi
+    - key: update-handler
+      handler: handler.updateHandler
 app:
   id: ari:cloud:ecosystem::app/22d883bd-4ff6-45dc-90eb-e6b6cf91bb71
   runtime:
