@@ -8,14 +8,17 @@ const ProjectAPISelect = (props) => {
   const context = useProductContext();
 
   const onUpdateApi = async (formData) => {
-    await addSyncupComment("Delete", formData.updateApi, context.platformContext.issueKey);
 
     if (formData.action === 'remove'){
       await propertyDeleteApi(formData, context.platformContext.issueKey)
+      await addSyncupComment(`Deleted ${formData.updateApi}`, context.platformContext.issueKey, "error");
+    }else if(formData.action === 'update'){
+      await addSyncupComment(`Updated ${formData.updateApi}`, context.platformContext.issueKey, "info");
+    }else if (formData.action === 'deprecate'){
+      await addSyncupComment(`Deprecation of ${formData.updateApi}`, context.platformContext.issueKey, "warning");
     }
 
-    let resp = await sendUpdatesToSubscribedProjects(formData.updateApi,formData.title,formData.description,formData.priority);
-    console.log("Response of dprecrcate: ",resp);
+    let resp = await sendUpdatesToSubscribedProjects(formData.updateApi,formData.title,formData.description,formData.priority,formData.action);
   }
 
   for( let api of props.projectApi){
@@ -113,7 +116,7 @@ const App = () => {
     if(allApis.includes(formData.apiname)){
       setApiExistsModal(true);
     }else{
-    await addSyncupComment("add", formData.apiname, context.platformContext.issueKey);
+    await addSyncupComment(`Added ${formData.apiname}!` , context.platformContext.issueKey, "success");
   
     await propertyAddApi(formData.apiname, context.platformContext.issueKey);
     }

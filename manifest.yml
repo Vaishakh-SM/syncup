@@ -2,7 +2,7 @@ modules:
   jira:issuePanel:
     - key: jira-issue-panel-hello-world-panel
       function: main
-      title: Syncup
+      title: SyncUp
       icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
   trigger:
     - key: jira-update-handler

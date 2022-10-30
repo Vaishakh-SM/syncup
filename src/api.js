@@ -1,29 +1,31 @@
 import api, { route } from '@forge/api';
 import { storage } from '@forge/api';
 
-export async function addSyncupComment(action, apiName, issueId) {
-  if (
-    typeof action === 'undefined' ||
-    typeof apiName === 'undefined' ||
-    typeof issueId === 'undefined'
-  ) {
-    console.log('ERROR: Action, API and Issue ID name must be specified');
+export async function addSyncupComment(commentText, issueId, infoType) {
+  if (typeof commentText === 'undefined' || typeof issueId === 'undefined') {
+    console.log('ERROR: Comment text and Issue ID name must be specified');
   } else {
-    var commentText = `"SYNCUP: ${action} : ${apiName}"`;
-
     var body = `{
         "body": {
           "type": "doc",
           "version": 1,
           "content": [
             {
-              "type": "paragraph",
-              "content": [
-                {
-                  "text": ${commentText},
-                  "type": "text"
-                }
-              ]
+                "type": "panel",
+                "attrs": {
+                  "panelType": "${infoType}"
+                },
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "${commentText}"
+                      }
+                    ]
+                  }
+                ]
             }
           ]
         }
@@ -47,38 +49,6 @@ export async function addSyncupComment(action, apiName, issueId) {
       console.log('ERRORED', e);
     }
   }
-}
-
-export async function propertyAddApi(apiname, issueKey) {
-  await propertyAdd(apiname, issueKey, 'AddApi');
-}
-
-export async function propertyDeleteApi(apiname, issueKey) {
-  await propertyAdd(apiname, issueKey, 'DeleteApi');
-}
-
-export async function propertyAddSubscribe(apiname, issueKey) {
-  await propertyAdd(apiname, issueKey, 'Subscribe');
-}
-
-export async function propertyGetSubscribe(issueKey) {
-  return await propertyGet(issueKey, 'Subscribe');
-}
-
-export async function propertyUnsubscribe(apiname, issueKey) {
-  await propertyAdd(apiname, issueKey, 'Unsubscribe');
-}
-
-export async function propertyGetUnsubscribe(issueKey) {
-  return await propertyGet(issueKey, 'Unsubscribe');
-}
-
-export async function propertyGetAddApi(issueKey) {
-  return await propertyGet(issueKey, 'AddApi');
-}
-
-export async function propertyGetDeleteApi(issueKey) {
-  return await propertyGet(issueKey, 'DeleteApi');
 }
 
 export async function propertyAdd(element, issueKey, propKey) {
@@ -194,16 +164,32 @@ export async function getSubscribedProjects(api) {
   return subscribedProjects;
 }
 
-export async function createIssue(project, title, description, priority) {
+export async function createIssue(
+  project,
+  title,
+  description,
+  priority,
+  action,
+  apiName
+) {
+  let issueType;
+  if (action === 'deprecate') {
+    issueType = 'Deprecation';
+  } else if (action === 'remove') {
+    issueType = 'Removal';
+  } else if (action === 'update') {
+    issueType = 'Update';
+  }
+
   var bodyData = `{
           "update": {},
           "fields": {
-            "summary": "${title}",
+            "summary": "${issueType}: ${title}",
             "project": {
               "key": "${project}"
             },
             "issuetype": {
-                "name": "Bug"
+                "name": "${issueType}"
             },
             "priority": {
                 "name": "${priority}"
@@ -224,7 +210,7 @@ export async function createIssue(project, title, description, priority) {
               ]
             },
             "labels": [
-              "Notification"
+              "${apiName}"
             ]
           }
         }`;
@@ -238,21 +224,54 @@ export async function createIssue(project, title, description, priority) {
       },
       body: bodyData,
     });
-    console.log('Create issue Response: ', response);
+    console.log('Create issue Response: ', await response.json());
   } catch (e) {
     console.log('Error: ', e);
   }
 }
 
 export async function sendUpdatesToSubscribedProjects(
-  api,
+  apiName,
   title,
   description,
-  priority
+  priority,
+  action
 ) {
-  let subscribedProjects = await getSubscribedProjects(api);
+  let subscribedProjects = await getSubscribedProjects(apiName);
 
   for (let key of subscribedProjects) {
-    await createIssue(key, title, description, priority);
+    await createIssue(key, title, description, priority, action, apiName);
   }
+}
+
+export async function propertyAddApi(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'AddApi');
+}
+
+export async function propertyDeleteApi(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'DeleteApi');
+}
+
+export async function propertyAddSubscribe(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'Subscribe');
+}
+
+export async function propertyGetSubscribe(issueKey) {
+  return await propertyGet(issueKey, 'Subscribe');
+}
+
+export async function propertyUnsubscribe(apiname, issueKey) {
+  await propertyAdd(apiname, issueKey, 'Unsubscribe');
+}
+
+export async function propertyGetUnsubscribe(issueKey) {
+  return await propertyGet(issueKey, 'Unsubscribe');
+}
+
+export async function propertyGetAddApi(issueKey) {
+  return await propertyGet(issueKey, 'AddApi');
+}
+
+export async function propertyGetDeleteApi(issueKey) {
+  return await propertyGet(issueKey, 'DeleteApi');
 }
